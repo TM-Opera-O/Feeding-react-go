@@ -27,12 +27,5 @@ dist-ssr/
 *.sln
 *.sw?
 
-# Go build output
-/backend/bin/
-/backend/pkg/
-/backend/*.exe
-/backend/*.out
-/backend/*.test
-
 # Optional: Go module cache (if you ever copy modules in)
 /vendor/
