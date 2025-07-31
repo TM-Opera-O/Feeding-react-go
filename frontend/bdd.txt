@@ -1,0 +1,67 @@
+
+linea:
+idlinea string
+nombre string
+
+jaula:
+idjaula string
+nombre string
+idlinea string
+numerosalida number (la salida del selector que conecta la alimentacion)
+cantidadpeces number
+pesopromedio number
+tasa number
+factoractividad number
+tiemposoplado number
+hzblower number
+
+alimentacion:
+id string
+idprograma string
+idjaula string
+fecha date
+iddosificador
+visita number
+gramos number
+tasa number
+hertzsoplado number
+
+alimentacion:
+id string
+idprograma string
+idjaula string
+fecha date
+iddosificador
+visita number
+gramos number
+tasa number
+idalimento string
+idsilo string
+
+blower:
+id string
+idlinea string
+
+selector:
+id string
+idlinea string
+salidas string 
+
+dosificador:
+id string
+idlinea string
+idsilo string
+tasamaxima number
+
+silo:
+id string
+nombre string
+capacidad number
+saldo number
+
+alimento:
+id string
+idsilo string
+nombre string
+medicado boolean
+pelletkilo number
