@@ -1,35 +1,29 @@
 import { useEffect, useRef } from "react";
 
-export const useWebSocket = (onMessage: (data: any) => void) => {
-  const ws = useRef<WebSocket | null>(null);
+export const useWebSocket = (url: string, onMessage: (msg: string) => void) => {
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Abre la conexión WebSocket
-    ws.current = new WebSocket("ws://localhost:8080/ws");
+    socketRef.current = new WebSocket(url);
 
-    ws.current.onopen = () => {
-      console.log("✅ Conectado al WebSocket del backend");
+    socketRef.current.onopen = () => {
+      console.log("✅ WebSocket conectado");
     };
 
-    ws.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        onMessage(data);
-      } catch (err) {
-        console.error("❌ Error al parsear mensaje WS:", err);
-      }
+    socketRef.current.onmessage = (event) => {
+      onMessage(event.data);
     };
 
-    ws.current.onerror = (err) => {
-      console.error("🛑 Error WebSocket:", err);
+    socketRef.current.onerror = (err) => {
+      console.error("❌ WebSocket error:", err);
     };
 
-    ws.current.onclose = () => {
-      console.warn("🔌 WebSocket cerrado");
+    socketRef.current.onclose = () => {
+      console.log("🔌 WebSocket cerrado");
     };
 
     return () => {
-      ws.current?.close();
+      socketRef.current?.close();
     };
-  }, []);
+  }, [url]);
 };

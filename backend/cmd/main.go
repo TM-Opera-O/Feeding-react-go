@@ -1,19 +1,21 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
 	"feeding-backend/internal/db"
 	"feeding-backend/internal/mqtt"
 	"feeding-backend/internal/router"
 	"feeding-backend/internal/ws"
-	"log"
-	"net/http"
-	"os"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Cargar archivo .env
+	// Cargar variables de entorno desde .env
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Println("⚠️ No se pudo cargar el archivo .env, usando variables del sistema")
@@ -29,25 +31,28 @@ func main() {
 	// Conexión a MongoDB
 	db.Connect()
 
-	// WebSocket hub
+	// Inicializar WebSocket hub
 	hub := ws.NewHub()
 	go hub.Run()
 
-	// Crear router principal con rutas REST y WS
-	mainRouter := router.NewRouter() // Usa tu nuevo enrutador modular
+	// Crear router principal (REST + WebSocket)
+	mainRouter := router.NewRouter()
 
-	// WebSocket endpoint manual (si no está incluido en NewRouter)
+	// Endpoint WebSocket directo
 	mainRouter.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ws.ServeWS(hub, w, r)
 	})
 
-	// MQTT suscripción
-	mqtt.StartSubscriber(func(message []byte) {
-		log.Printf("📩 Mensaje recibido del PLC: %s\n", message)
-		hub.Broadcast(message)
+	// Suscripción MQTT
+	mqtt.StartSubscriber(func(topic string, message []byte) {
+		log.Printf("📩 [%s] Mensaje recibido del PLC: %s\n", topic, message)
+
+		// Reenviar al frontend con formato { topic, payload }
+		formatted := fmt.Sprintf(`{"topic":"%s","payload":%s}`, topic, string(message))
+		hub.Broadcast([]byte(formatted))
 	})
 
-	// Iniciar servidor
+	// Iniciar servidor HTTP
 	log.Println("✅ Servidor HTTP listo en http://localhost:" + port)
 	err = http.ListenAndServe(":"+port, mainRouter)
 	if err != nil {
